@@ -43,11 +43,29 @@ def to_string(number_arr,operation_arr):
 def verify_int(number):
     return number.isdigit()
 
+def split_sum_into_steps(numbers, operators, steps):
+    for i,operator in enumerate(operators):
+        print(operation_symbols[operator])
+        if operator == 2 or operator == 3:
+            i, numbers, operators, steps = combine(i, numbers, operators, steps, operator)
+            if len(numbers) == 1:
+                return steps
+            split_sum_into_steps(numbers, operators, steps)
+
+def combine(i, numbers, operators, steps, operator):
+    sum = str(numbers[i]) + operation_symbols[operator] + str(numbers[i + 1])
+    steps.update({sum: eval(sum)})
+    operators.pop(i)  # removing completed operator
+    numbers.pop(i)  # removing elements
+    numbers.insert(i, steps[next(reversed(steps))])
+    print(steps)
+    return i, numbers, operators, steps
 generate_operation_combinations()
 
 while 1:
     numbers = []
     number_combinations = []
+    steps = {}
     print("----------------------------")
     for i in range(6):
         valid_input = False
@@ -66,7 +84,8 @@ while 1:
 
     generate_number_combinations()
 
-    for i in number_combinations:
-        for j in operation_combinations:
-            if calc_result(i,j) == target:
-                print(to_string(i,j))
+    for numbers in number_combinations:
+        for operators in operation_combinations:
+            if calc_result(numbers,operators) == target:
+                print(to_string(numbers,operators))
+                print(split_sum_into_steps(numbers,operators,steps))
