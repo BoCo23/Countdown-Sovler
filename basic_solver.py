@@ -78,6 +78,22 @@ def combine(i, numbers, operators, steps, operator):
     numbers[i] = result # replacing second number with the result
     return i, numbers, operators, steps
 
+def save_to_file(steps):
+    file_contents_to_write = ""
+    for step in steps:
+        string = str(step[0])
+        string = string.replace("*","x")
+        string = string.replace("/","÷")
+        # adding spaces
+        for i,char in enumerate(string):
+            if not char.isdigit():
+                string = string[:i] + " " + char + " " + string[i+1:]
+        file_contents_to_write += string.strip() + " = " + str(step[1]) + "\n" # string.strip() is to remove any spaces at the start if the first number is negative
+
+    file_contents_to_write += "----------------\n"
+    with open(file_name, "a") as file:
+        file.write(file_contents_to_write)
+
 generate_operation_combinations()
 
 numbers = []
@@ -109,10 +125,19 @@ while 1:
     number_combinations = []
     generate_number_combinations()
 
+    # making file
+    file_name = "outputs/" # directory to output folder
+    for i in numbers: # getting all numbers
+        file_name += str(i) + "-"
+    file_name = file_name[:-1] + "_" + str(target) + ".txt" # adding the target number to the file name, removing the last -
+    with open(file_name, "w") as file: # this makes the file if it dosent exist and whipes it if it does
+        file.write("----------------\n")
+
     for numbers in number_combinations:
         for operators in operation_combinations:
             if calc_result(numbers,operators) == target:
                 steps = split_expression_into_steps(numbers[:], operators[:], []) # this enters numbers and operators as copies os originals are not touched
+                save_to_file(steps)
                 print("--------------------------")
                 for expression, result in steps:
                     print(f"  {expression} = {result}")
